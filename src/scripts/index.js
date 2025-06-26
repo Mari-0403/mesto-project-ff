@@ -1,5 +1,8 @@
-const cardTemplate = document.querySelector('#card-template').content;
+import '../pages/index.css';
 
+import { initialCards } from './cards.js';
+
+const cardTemplate = document.querySelector('#card-template').content;
 const cardList = document.querySelector('.places__list');
 
 function createCard (initialCard, deleteCard) {
