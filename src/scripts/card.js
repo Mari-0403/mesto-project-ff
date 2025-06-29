@@ -1,6 +1,6 @@
-import { cardTemplate } from './index.js';
+const cardTemplate = document.querySelector('#card-template').content;
 
-export function createCard (initialCard, deleteCard, likeCard, openCard) {
+export function createCard (initialCard, { onDeleteCard, onLikeCard, onOpenImage } ) {
   const card = cardTemplate.querySelector('.card').cloneNode(true);
   const cardImage = card.querySelector('.card__image');
   const cardTitle = card.querySelector('.card__title');
@@ -10,19 +10,20 @@ export function createCard (initialCard, deleteCard, likeCard, openCard) {
   cardTitle.textContent = initialCard.name;
     
   const deleteButton = card.querySelector('.card__delete-button');
-  deleteButton.addEventListener('click', () => {deleteCard(card)})  
+  deleteButton.addEventListener('click', () => {onDeleteCard(card)});
 
   const likeButton = card.querySelector('.card__like-button');
-  likeButton.addEventListener('click', likeCard)
+  likeButton.addEventListener('click', onLikeCard);
 
-  const popupImage = document.querySelector('.popup__image');
-  const popupTitle = document.querySelector('.popup__caption'); 
-  cardImage.addEventListener('click', () => {
-    openCard();
-    popupImage.src = cardImage.src;
-    popupImage.alt = cardImage.alt;
-    popupTitle.textContent = cardTitle.textContent;
-  });
-
+  cardImage.addEventListener('click',() => {onOpenImage(card)});
+    
   return card;
+}
+
+export function deleteCard(card) {
+  card.remove()
+}
+
+export function likeCard(evt) {
+  evt.target.classList.toggle('card__like-button_is-active')
 }

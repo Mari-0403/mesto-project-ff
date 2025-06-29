@@ -1,36 +1,30 @@
 import '../pages/index.css';
 
-import { createCard } from './card.js';
+import { createCard, deleteCard, likeCard } from './card.js';
 import { initialCards } from './cards.js';
 import { openModal, closeModal } from './modal.js';
-import { handleEditFormSubmit } from './editForm.js';
-import { handlerAddFormSubmit } from './addForm.js';
 
-export const cardTemplate = document.querySelector('#card-template').content;
-export const cardList = document.querySelector('.places__list');
-
-const editButton = document.querySelector('.profile__edit-button');
-export const addButton = document.querySelector('.profile__add-button');
+const cardList = document.querySelector('.places__list');
 
 const popups = document.querySelectorAll('.popup');
 
-export const popupTypeEdit = document.querySelector('.popup_type_edit');
-export const popupTypeAdd = document.querySelector('.popup_type_new-card');
-export const popupTypeImage = document.querySelector('.popup_type_image');
+const editButton = document.querySelector('.profile__edit-button');
+const popupTypeEdit = document.querySelector('.popup_type_edit');
+const editForm = document.forms['edit-profile'];
 
-export const editForm = document.forms['edit-profile'];
-export const addForm = document.forms['new-place'];
+const addButton = document.querySelector('.profile__add-button');
+const popupTypeAdd = document.querySelector('.popup_type_new-card');
+const addForm = document.forms['new-place'];
+
+const popupTypeImage = document.querySelector('.popup_type_image');
 
 initialCards.forEach(function (initialCard) {
   const addedCard = createCard(
     initialCard, 
-    (deleteCard) => {deleteCard.remove()}, 
-    (evt) => {evt.target.classList.toggle('card__like-button_is-active')},
-    () => {
-      setTimeout(() => {
-        popupTypeImage.classList.add('popup_is-opened');
-      }, 10);
-      popupTypeImage.classList.add('popup_is-animated');
+    {
+      onDeleteCard: deleteCard, 
+      onLikeCard: likeCard,
+      onOpenImage: () => {openImage(initialCard, popupTypeImage), animatedCard}
     }
   );
   cardList.append(addedCard); 
@@ -46,14 +40,85 @@ editButton.addEventListener('click', () => {
   inputName.value = profileName;
   inputDescription.value = profileDescription;
 
-  openModal(popupTypeEdit)
+  openModal(popupTypeEdit);
 });
 
-addButton.addEventListener('click', () => openModal(popupTypeAdd));
+addButton.addEventListener('click', () => {
+  addForm.reset();
+  openModal(popupTypeAdd)
+});
 
 popups.forEach((popup) => {
   popup.addEventListener('click', closeModal);
 })
 
-editForm.addEventListener('submit', handleEditFormSubmit)
+// Функция анимации карточек
+function animatedCard() {
+  setTimeout(() => {
+    popupTypeImage.classList.add('popup_is-opened');
+  }, 10);
+  popupTypeImage.classList.add('popup_is-animated');
+}
+
+// Функция просмотра карточки
+function openImage(card, popupType){ 
+  const popupImage = popupType.querySelector('img');
+  const popupTitle = popupType.querySelector('p');
+
+  popupImage.src = card.link;
+  popupImage.alt = card.name;
+  popupTitle.textContent = card.name;
+
+  openModal(popupType);
+}
+
+// Функция для автоматического закрытия попапа при сабмите
+function autoClosePopup(popupType) {
+  popupType.classList.remove('popup_is-opened');
+}
+
+// Функция обработки редактирования профиля
+function handleEditFormSubmit(evt) {
+  evt.preventDefault();
+
+  const inputName = editForm.elements['name'].value;
+  const inputDescription = editForm.elements['description'].value; 
+
+  const profileName = document.querySelector('.profile__title');
+  const profileDescription = document.querySelector('.profile__description');
+
+  profileName.textContent = inputName;
+  profileDescription.textContent = inputDescription;
+  
+  autoClosePopup(popupTypeEdit);
+}
+
+//  Функция обработки добавки карточки
+function handlerAddFormSubmit(evt) {
+  evt.preventDefault();
+
+  let inputPlace = addForm.elements['place-name'].value;
+  let inputLink = addForm.elements['link'].value;
+
+  const initialCard = {
+    name: inputPlace,
+    link: inputLink
+  }
+
+  const newCard = createCard(
+    initialCard, 
+    {
+      onDeleteCard: deleteCard,
+      onLikeCard: likeCard,
+      onOpenImage: () => {openImage(initialCard, popupTypeImage), animatedCard}
+    }
+  );
+  cardList.prepend(newCard);
+
+  evt.target.reset();
+
+  autoClosePopup(popupTypeAdd);
+}
+
+editForm.addEventListener('submit', handleEditFormSubmit);
 addForm.addEventListener('submit', handlerAddFormSubmit);

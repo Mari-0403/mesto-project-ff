@@ -4,11 +4,7 @@ export function openModal(popupType) {
   }, 10) 
   popupType.classList.add('popup_is-animated')
 
-  document.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Escape') {
-      popupType.classList.remove('popup_is-opened');
-    } 
-  })
+  document.addEventListener('keydown', handlerEscClose)
 }
 
 export function closeModal(evt) {
@@ -16,4 +12,14 @@ export function closeModal(evt) {
     const popup = evt.currentTarget;
     popup.classList.remove('popup_is-opened');
   }
+
+  document.removeEventListener('keydown', handlerEscClose)
 }
+
+function handlerEscClose(evt) {
+  const popup = document.querySelector('.popup_is-opened')
+  
+  if (evt.key === 'Escape') {
+    popup.classList.remove('popup_is-opened');
+  } 
+};
