@@ -24,7 +24,7 @@ initialCards.forEach(function (initialCard) {
     {
       onDeleteCard: deleteCard, 
       onLikeCard: likeCard,
-      onOpenImage: () => {openImage(initialCard, popupTypeImage), animatedCard}
+      onOpenImage: () => {openImage(initialCard, popupTypeImage), openModal(popupTypeImage)}
     }
   );
   cardList.append(addedCard); 
@@ -49,16 +49,8 @@ addButton.addEventListener('click', () => {
 });
 
 popups.forEach((popup) => {
-  popup.addEventListener('click', closeModal);
+  popup.addEventListener('click', (evt) => closeModal(evt, popup));
 })
-
-// Функция анимации карточек
-function animatedCard() {
-  setTimeout(() => {
-    popupTypeImage.classList.add('popup_is-opened');
-  }, 10);
-  popupTypeImage.classList.add('popup_is-animated');
-}
 
 // Функция просмотра карточки
 function openImage(card, popupType){ 
@@ -70,11 +62,6 @@ function openImage(card, popupType){
   popupTitle.textContent = card.name;
 
   openModal(popupType);
-}
-
-// Функция для автоматического закрытия попапа при сабмите
-function autoClosePopup(popupType) {
-  popupType.classList.remove('popup_is-opened');
 }
 
 // Функция обработки редактирования профиля
@@ -90,7 +77,7 @@ function handleEditFormSubmit(evt) {
   profileName.textContent = inputName;
   profileDescription.textContent = inputDescription;
   
-  autoClosePopup(popupTypeEdit);
+  closeModal(null, popupTypeEdit);
 }
 
 //  Функция обработки добавки карточки
@@ -110,14 +97,14 @@ function handlerAddFormSubmit(evt) {
     {
       onDeleteCard: deleteCard,
       onLikeCard: likeCard,
-      onOpenImage: () => {openImage(initialCard, popupTypeImage), animatedCard}
+      onOpenImage: () => {openImage(initialCard, popupTypeImage)}
     }
   );
   cardList.prepend(newCard);
 
   evt.target.reset();
 
-  autoClosePopup(popupTypeAdd);
+  closeModal(null, popupTypeAdd);
 }
 
 editForm.addEventListener('submit', handleEditFormSubmit);

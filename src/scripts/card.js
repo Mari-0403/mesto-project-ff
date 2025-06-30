@@ -15,7 +15,7 @@ export function createCard (initialCard, { onDeleteCard, onLikeCard, onOpenImage
   const likeButton = card.querySelector('.card__like-button');
   likeButton.addEventListener('click', onLikeCard);
 
-  cardImage.addEventListener('click',() => {onOpenImage(card)});
+  cardImage.addEventListener('click', () => {onOpenImage(card)});
     
   return card;
 }
