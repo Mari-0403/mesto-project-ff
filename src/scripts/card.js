@@ -30,12 +30,18 @@ export function createCard (initialCard, { onDeleteCard, onLikeCard, onOpenImage
 
   likeButton.addEventListener('click', () => {
     const currentLikeStatus = likeButton.classList.contains('card__like-button_is-active')
-    onLikeCard(card, initialCard._id, currentLikeStatus, likeCounter);
+    onLikeCard(card, initialCard._id, currentLikeStatus, userId);
   });
 
   return card;
 }
 
-// export function deleteCard(card) {
-//   card.remove()
-// }
+export function updateLikes (card, likes, userId) {
+  const likeCounter = card.querySelector('.card__quantiti-like');
+  const likeButton = card.querySelector('.card__like-button');
+
+  likeCounter.textContent = likes.length;
+
+  const isLiked = likes.some(like => like._id === userId);
+  likeButton.classList.toggle('card__like-button_is-active', isLiked)
+}

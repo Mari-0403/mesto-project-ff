@@ -1,6 +1,6 @@
 import '../pages/index.css';
 
-import { createCard } from './card.js';
+import { createCard, updateLikes } from './card.js';
 import { openModal, closeModal } from './modal.js';
 import { enableValidation, cleanValidation } from './validation.js';
 import { fetchUserPromise, toggleLike, handleCardsRequest, handlerProfileRequest, deleteCard, editAvatar } from './api.js';
@@ -12,56 +12,53 @@ const popups = document.querySelectorAll('.popup');
 const editButton = document.querySelector('.profile__edit-button');
 const popupTypeEdit = document.querySelector('.popup_type_edit');
 const editForm = document.forms['edit-profile'];
+const inputName = editForm.elements.name;
+const inputDescription = editForm.elements.description;
 
 const addButton = document.querySelector('.profile__add-button');
 const popupTypeAdd = document.querySelector('.popup_type_new-card');
 const addForm = document.forms['new-place'];
 
-const editAvatarButton = document.querySelector('.profile__image');
+const profileAvatarElement = document.querySelector('.profile__image');
 const popupTypeEditAvatar = document.querySelector('.popup_type_edit-avatar');
-const editAvatarForm = document.forms['update-avatar']
+const editAvatarForm = document.forms['update-avatar'];
+const newAvatar = editAvatarForm.elements['link-avatar'];
 
 const popupTypeImage = document.querySelector('.popup_type_image');
 
-// Открытие по клику редактирования профиля
-editButton.addEventListener('click', () => {
-  const profileName = document.querySelector('.profile__title').textContent;
-  const profileDescription = document.querySelector('.profile__description').textContent;
+const profileName = document.querySelector('.profile__title');
+const profileDescription = document.querySelector('.profile__description');
 
-  const inputName = editForm.elements.name;
-  const inputDescription = editForm.elements.description;
+const popupImage = document.querySelector('.popup__image');
+const popupTitle = document.querySelector('.popup__caption');
 
-  inputName.value = profileName;
-  inputDescription.value = profileDescription;
-
-  openModal(popupTypeEdit, cleanValidation(editForm, {
+const settingValidation = {
     inputSelector: '.popup__input',
     buttonSelector: '.popup__button',
     inputErrorClass: 'popup__input-error',
     errorClass: 'popup__input-error_active'
-  }));
+}
+
+let userId;
+
+// Открытие по клику редактирования профиля
+editButton.addEventListener('click', () => {
+  inputName.value = profileName.textContent;
+  inputDescription.value = profileDescription.textContent;
+
+  openModal(popupTypeEdit, cleanValidation(editForm, settingValidation));
 });
 
 // Открытие по клику добавления карточки
 addButton.addEventListener('click', () => {
   addForm.reset();
-  openModal(popupTypeAdd, cleanValidation(addForm, {
-    inputSelector: '.popup__input',
-    buttonSelector: '.popup__button',
-    inputErrorClass: 'popup__input-error',
-    errorClass: 'popup__input-error_active'
-  }))
+  openModal(popupTypeAdd, cleanValidation(addForm, settingValidation))
 });
 
 // Открытие формы редактирования аватара
-editAvatarButton.addEventListener('click', () => {
+profileAvatarElement.addEventListener('click', () => {
   editAvatarForm.reset();
-  openModal(popupTypeEditAvatar, cleanValidation(addForm, {
-    inputSelector: '.popup__input',
-    buttonSelector: '.popup__button',
-    inputErrorClass: 'popup__input-error',
-    errorClass: 'popup__input-error_active'
-  }))
+  openModal(popupTypeEditAvatar, cleanValidation(addForm, settingValidation))
 })
 
 // Добавление слушателя закрытия попапов
@@ -71,14 +68,11 @@ popups.forEach((popup) => {
 
 // Функция просмотра изображения карточки
 function openImage(card, popupType){ 
-  const popupImage = popupType.querySelector('img');
-  const popupTitle = popupType.querySelector('p');
-
   popupImage.src = card.link;
   popupImage.alt = card.name;
   popupTitle.textContent = card.name;
 
-  openModal(popupType);
+  openModal(popupType, null);
 }
 
 // Функция обработки редактирования профиля
@@ -95,9 +89,6 @@ function handleEditFormSubmit(evt) {
 
   handlerProfileRequest(profileData)
     .then(() => {
-      const profileName = document.querySelector('.profile__title');
-      const profileDescription = document.querySelector('.profile__description');
-      
       profileName.textContent = profileData.name;
       profileDescription.textContent = profileData.about;
 
@@ -119,10 +110,8 @@ function handlerAddFormSubmit(evt) {
     link: addForm.elements['link'].value
   }
 
-  Promise.all([handleCardsRequest('POST', cardData), fetchUserPromise])
-  .then(([card, userData]) => {
-    const userId = userData._id;
-
+  handleCardsRequest('POST', cardData)
+  .then((card) => {
     const newCard = createCard(
       card, 
       {
@@ -135,7 +124,7 @@ function handlerAddFormSubmit(evt) {
     cardList.prepend(newCard); 
     closeModal(null, popupTypeAdd);
     })
-  .catch((err) => console.log('Ошибка в обработке Promise.all при создании карточки', err))
+  .catch((err) => console.log('Ошибка при создании карточки', err))
   .finally(() => toggleButtonState(submitButton, false))
 }
 
@@ -143,15 +132,14 @@ function handlerAddFormSubmit(evt) {
 function handlerEditAvatarFormSubmit(evt) {
   evt.preventDefault();
 
+  const newAvatarValue = newAvatar.value;
+
   const submitButton = editAvatarForm.querySelector('.popup__button');
   toggleButtonState(submitButton, true);
 
-  const newAvatar = editAvatarForm.elements['link-avatar'].value;
-
-  editAvatar(newAvatar)
+  editAvatar(newAvatarValue)
     .then((userData) => {
-      const profileImage = document.querySelector('.profile__image');
-      profileImage.style.backgroundImage = `url(${userData.avatar})`;
+      profileAvatarElement.style.backgroundImage = `url(${userData.avatar})`;
 
       closeModal(null, popupTypeEditAvatar);
     })
@@ -177,7 +165,12 @@ enableValidation({
 // Обработка запросов, вывод карточек, получение id-пользователя(меня)
 Promise.all([handleCardsRequest(), fetchUserPromise])
   .then(([cardsData, userData]) => {
-    const userId = userData._id;
+    userId = userData._id;
+
+    profileName.textContent = userData.name;
+    profileDescription.textContent = userData.about;
+    profileAvatarElement.style.backgroundImage = `url(${userData.avatar})`;
+    profileAvatarElement.alt = `Аватар пользователья ${userData.name}`;
 
     cardsData.forEach(function (initialCard) {
       const addedCard = createCard(
@@ -196,25 +189,16 @@ Promise.all([handleCardsRequest(), fetchUserPromise])
 
 // Запрос инфы по мне, сохранение данных с сервера в профиль
 fetchUserPromise
-  .then((data) => {
-    const profileImage = document.querySelector('.profile__image');
-    const profileName = document.querySelector('.profile__title');
-    const profileDescription = document.querySelector('.profile__description');
+  .then((data) => {    
 
-    profileName.textContent = data.name;
-    profileDescription.textContent = data.about;
-    profileImage.style.backgroundImage = `url(${data.avatar})`;
-    profileImage.alt = `Аватар пользователья ${data.name}`;
   })
   .catch((err) => console.log("Ошибка при загрузке данных пользователя", err))
 
   // Обработка лайка
-const handlerLikeCard = (card, cardId, isLiked, likeCounter) => {  
+const handlerLikeCard = (card, cardId, isLiked) => {  
   toggleLike(cardId, isLiked)
-    .then((updateLikes) => {
-      likeCounter.textContent = updateLikes.likes.length;
-      const likeButton = card.querySelector('.card__like-button');
-      likeButton.classList.toggle('card__like-button_is-active');
+    .then((updateCard) => {
+      updateLikes(card, updateCard.likes, userId)
     })
     .catch((err) => console.log('Ошибка при обновлении лайка:', err))
 }

@@ -7,16 +7,15 @@ const config = {
   }
 }
 
+const checkResponse = (res) => {
+  return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
+}
+
 // Запрос данных пользователя(меня)
 export const fetchUserPromise = fetch (`${config.baseUrl}/users/me`, {
   headers: config.headers
 })
-.then((res) => {
-    if (!res.ok) {
-      return Promise.reject(`Ошибка: ${res.status}`);
-    }
-    return res.json();
-})
+.then(res => checkResponse(res))
 
 // Переключатель лайка
 export const toggleLike = (cardId, isLiked) => {
@@ -24,12 +23,7 @@ export const toggleLike = (cardId, isLiked) => {
   method: isLiked ? 'DELETE' : 'PUT', 
   headers: config.headers
   })
-  .then((res) => {
-    if (!res.ok) {
-      return Promise.reject(`Ошибка: ${res.status}`);
-    }
-    return res.json();
-  })
+  .then(res => checkResponse(res))
 }
 
 // Удаление карточки
@@ -38,12 +32,7 @@ export const deleteCard = (cardId) => {
     method: 'DELETE', 
     headers: config.headers
   })
-  .then((res) => {
-    if (!res.ok) {
-      return Promise.reject(`Ошибка: ${res.status}`)
-    }
-    return res.json();
-  })
+  .then(res => checkResponse(res))
 }
 
 // Обработка ответа профиля
@@ -58,12 +47,7 @@ export const handlerProfileRequest = (profileData = null) => {
   }
 
   return fetch(`${config.baseUrl}/users/me`, options)
-    .then((res) => {
-      if(!res.ok) {
-        return Promise.reject(`Ошибка: ${res.status}`);
-      }
-      return res.json();
-    })
+  .then(res => checkResponse(res))
 }
 
 // Обработка ответа карточки
@@ -78,12 +62,7 @@ export const handleCardsRequest = (method = 'GET', cardData = null, cardId = '')
   }
 
   return fetch(`${config.baseUrl}/cards${cardId}`, options)
-    .then((res) => {
-      if(!res.ok) {
-        return Promise.reject(`Ошибка: ${res.status}`);
-      }
-      return res.json();
-    })
+  .then(res => checkResponse(res))
 }
 
 export const editAvatar = (newAvatar) => {
@@ -94,11 +73,5 @@ export const editAvatar = (newAvatar) => {
       avatar: newAvatar
     })
   })
-  .then((res) => {
-  if(!res.ok) {
-    return Promise.reject(`Ошибка: ${res.status}`);
-  }
-  return res.json()
-  })
+  .then(res => checkResponse(res))
 }
-

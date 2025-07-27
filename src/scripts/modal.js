@@ -1,12 +1,5 @@
 export function openModal(popupType, cleanForm) {
-  setTimeout(() => {
-    popupType.classList.add('popup_is-opened');
-  }, 10) 
-  popupType.classList.add('popup_is-animated')
-
-  if (cleanForm) {
-    cleanForm();
-  }
+  popupType.classList.add('popup_is-opened');
 
   document.addEventListener('keydown', (evt) => handlerEscClose(evt, popupType))
 }
