@@ -1,8 +1,12 @@
-export function openModal(popupType) {
+export function openModal(popupType, cleanForm) {
   setTimeout(() => {
     popupType.classList.add('popup_is-opened');
   }, 10) 
   popupType.classList.add('popup_is-animated')
+
+  if (cleanForm) {
+    cleanForm();
+  }
 
   document.addEventListener('keydown', (evt) => handlerEscClose(evt, popupType))
 }
@@ -12,11 +16,11 @@ export function closeModal(evt, popupType) {
     popupType.classList.remove('popup_is-opened');
   }
 
-  document.removeEventListener('keydown', (evt) => handlerEscClose(evt, popupType))
+  document.removeEventListener('keydown', (evt) => handlerEscClose(evt, popupType));
 }
 
 function handlerEscClose(evt, popup) {  
   if (evt.key === 'Escape') {
     closeModal(null, popup);
   } 
-};
+}

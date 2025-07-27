@@ -1,0 +1,11 @@
+.button__inactive {
+  cursor: auto;
+  color: rgba(0, 0, 0, .2);
+  background-color: transparent;
+  border: 1px solid rgba(0, 0, 0, .2);
+}
+
+.button__inactive:hover {
+  background: transparent;
+  cursor: auto;
+}
