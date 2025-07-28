@@ -32,12 +32,12 @@ const profileDescription = document.querySelector('.profile__description');
 const popupImage = document.querySelector('.popup__image');
 const popupTitle = document.querySelector('.popup__caption');
 
-const settingValidation = {
+const cleanValidationConfig = {
     inputSelector: '.popup__input',
     buttonSelector: '.popup__button',
     inputErrorClass: 'popup__input-error',
     errorClass: 'popup__input-error_active'
-}
+};
 
 let userId;
 
@@ -46,19 +46,22 @@ editButton.addEventListener('click', () => {
   inputName.value = profileName.textContent;
   inputDescription.value = profileDescription.textContent;
 
-  openModal(popupTypeEdit, cleanValidation(editForm, settingValidation));
+  openModal(popupTypeEdit);
+  cleanValidation(editForm, cleanValidationConfig);
 });
 
 // Открытие по клику добавления карточки
 addButton.addEventListener('click', () => {
   addForm.reset();
-  openModal(popupTypeAdd, cleanValidation(addForm, settingValidation))
+  openModal(popupTypeAdd);
+  cleanValidation(addForm, cleanValidationConfig);
 });
 
 // Открытие формы редактирования аватара
 profileAvatarElement.addEventListener('click', () => {
   editAvatarForm.reset();
-  openModal(popupTypeEditAvatar, cleanValidation(addForm, settingValidation))
+  openModal(popupTypeEditAvatar);
+  cleanValidation(editAvatarForm, cleanValidationConfig);
 })
 
 // Добавление слушателя закрытия попапов

@@ -1,4 +1,4 @@
-export function openModal(popupType, cleanForm) {
+export function openModal(popupType) {
   popupType.classList.add('popup_is-opened');
 
   document.addEventListener('keydown', (evt) => handlerEscClose(evt, popupType))
