@@ -190,14 +190,7 @@ Promise.all([handleCardsRequest(), fetchUserPromise])
   })
   .catch((err) => console.log('Ошибка в обработке Promise.all при загрузке карточек с сервера', err))
 
-// Запрос инфы по мне, сохранение данных с сервера в профиль
-fetchUserPromise
-  .then((data) => {    
-
-  })
-  .catch((err) => console.log("Ошибка при загрузке данных пользователя", err))
-
-  // Обработка лайка
+// Обработка лайка
 const handlerLikeCard = (card, cardId, isLiked) => {  
   toggleLike(cardId, isLiked)
     .then((updateCard) => {
